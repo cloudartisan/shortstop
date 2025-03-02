@@ -67,20 +67,15 @@ ruby-setup:
 # Database setup
 db-setup:
 	@echo "${BLUE}Setting up database...${NC}"
-	@if ! command -v psql > /dev/null; then \
-		echo "${RED}PostgreSQL not found!${NC} Please install PostgreSQL first:"; \
-		echo "  On macOS: ${YELLOW}brew install postgresql@15${NC}"; \
-		echo "  Then run: ${YELLOW}brew services start postgresql@15${NC}"; \
-		exit 1; \
-	fi
-	bundle exec rails db:create db:migrate
-	@echo "${GREEN}Database setup complete.${NC}"
+	@# Skip PostgreSQL check and assume Rails will handle database connection
+	bundle exec rails db:create db:migrate db:seed
+	@echo "${GREEN}Database setup complete with test user created.${NC}"
 
 # Database reset (drop, create, migrate)
 db-reset:
 	@echo "${BLUE}Resetting database...${NC}"
-	bundle exec rails db:drop db:create db:migrate
-	@echo "${GREEN}Database reset complete.${NC}"
+	bundle exec rails db:drop db:create db:migrate db:seed
+	@echo "${GREEN}Database reset complete with test user created.${NC}"
 
 # Run migrations
 db-migrate:

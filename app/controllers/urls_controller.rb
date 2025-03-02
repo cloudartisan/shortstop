@@ -1,4 +1,6 @@
 class UrlsController < ApplicationController
+  before_action :authenticate_user!, only: [:create, :stats]
+  
   # Display form for creating a new shortened URL
   def new
     @url = Url.new
@@ -7,9 +9,13 @@ class UrlsController < ApplicationController
 
   # Create a new shortened URL or reuse existing one
   def create
-    # Check if the URL already exists in the database
-    existing_url = Url.find_by(original_url: url_params[:original_url])
-    
+    # Check if the URL already exists for this user
+    existing_url = if user_signed_in?
+                     Url.for_user_and_url(current_user.id, url_params[:original_url]).first
+                   else
+                     nil
+                   end
+                   
     if existing_url && existing_url.shortened_path.present?
       # Reuse the existing URL if it has a shortened path
       redirect_to url_path(existing_url.shortened_path), notice: 'URL was successfully shortened!'
@@ -20,6 +26,7 @@ class UrlsController < ApplicationController
       else
         # Create a new URL
         @url = Url.new(url_params)
+        @url.user = current_user if user_signed_in?
         @url.save
       end
       
@@ -64,6 +71,12 @@ class UrlsController < ApplicationController
     @url = Url.find_by_shortened_path(params[:id])
     
     if @url
+      # Check if the URL belongs to the current user
+      if @url.user.present? && @url.user != current_user
+        redirect_to root_path, alert: 'You are not authorized to view these statistics.'
+        return
+      end
+      
       # Get visits grouped by day for the chart
       @daily_visits = @url.visits
                           .group_by { |v| v.created_at.to_date }

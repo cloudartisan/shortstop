@@ -5,6 +5,8 @@ A modern URL shortening service built with Ruby on Rails 7.1 and Bootstrap 5. Th
 ## Features
 
 - Shorten long URLs to easy-to-share links
+- User accounts with email or Google OAuth authentication
+- Personal dashboard to manage all your shortened URLs
 - Track the number of visits for each shortened URL
 - QR codes for easy mobile sharing
 - Copy to clipboard functionality
@@ -17,6 +19,8 @@ A modern URL shortening service built with Ruby on Rails 7.1 and Bootstrap 5. Th
 - PostgreSQL database
 - Base62 encoding for URL shortening
 - Bootstrap 5 for frontend styling
+- Devise for authentication
+- OmniAuth for Google sign-in integration
 
 ## Requirements
 
@@ -41,12 +45,28 @@ cd shortstop
 make setup
 ```
 
-3. Start the server:
+3. Configure Google OAuth (for social login):
+   - Create a project at https://console.developers.google.com/
+   - Enable the Google+ API
+   - Create OAuth credentials (Web application type)
+   - Add authorized redirect URIs:
+     - For development: `http://localhost:3000/users/auth/google_oauth2/callback`
+   - Create a `.env` file in the project root (copy from `.env.example`):
+     ```
+     GOOGLE_CLIENT_ID=your_client_id
+     GOOGLE_CLIENT_SECRET=your_client_secret
+     ```
+
+4. Start the server:
 ```bash
 make server
 ```
 
-4. Visit http://localhost:3000 in your web browser
+5. Visit http://localhost:3000 in your web browser
+
+   For local testing, a test user is already created with:
+   - Email: admin@example.com
+   - Password: password123
 
 ### Available Make Commands
 
@@ -144,17 +164,34 @@ bundle install
    - Edit `config/database.yml` if needed to match your PostgreSQL setup
    - If you created a custom user, update the username and password
 
-4. Set up the database:
+4. Configure Google OAuth (for social login):
+   - Create a project at https://console.developers.google.com/
+   - Enable the Google+ API
+   - Create OAuth credentials (Web application type)
+   - Add authorized redirect URIs:
+     - For development: `http://localhost:3000/users/auth/google_oauth2/callback`
+   - Create a `.env` file in the project root (copy from `.env.example`):
+     ```
+     GOOGLE_CLIENT_ID=your_client_id
+     GOOGLE_CLIENT_SECRET=your_client_secret
+     ```
+
+5. Set up the database:
 ```bash
 bundle exec rails db:create db:migrate
+bundle exec rails db:seed
 ```
 
-5. Start the Rails server:
+6. Start the Rails server:
 ```bash
 bundle exec rails server
 ```
 
-6. Visit http://localhost:3000 in your web browser
+7. Visit http://localhost:3000 in your web browser
+
+   For local testing, a test user is already created with:
+   - Email: admin@example.com
+   - Password: password123
 
 ### Troubleshooting
 

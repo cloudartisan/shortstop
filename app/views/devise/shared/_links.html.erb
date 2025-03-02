@@ -1,0 +1,39 @@
+<div class="d-flex flex-column gap-2">
+  <%- if controller_name != 'sessions' %>
+    <%= link_to "Log in", new_session_path(resource_name), class: "text-decoration-none" %>
+  <% end %>
+
+  <%- if devise_mapping.registerable? && controller_name != 'registrations' %>
+    <%= link_to "Sign up", new_registration_path(resource_name), class: "text-decoration-none" %>
+  <% end %>
+
+  <%- if devise_mapping.recoverable? && controller_name != 'passwords' && controller_name != 'registrations' %>
+    <%= link_to "Forgot your password?", new_password_path(resource_name), class: "text-decoration-none" %>
+  <% end %>
+
+  <%- if devise_mapping.confirmable? && controller_name != 'confirmations' %>
+    <%= link_to "Didn't receive confirmation instructions?", new_confirmation_path(resource_name), class: "text-decoration-none" %>
+  <% end %>
+
+  <%- if devise_mapping.lockable? && resource_class.unlock_strategy_enabled?(:email) && controller_name != 'unlocks' %>
+    <%= link_to "Didn't receive unlock instructions?", new_unlock_path(resource_name), class: "text-decoration-none" %>
+  <% end %>
+
+  <%- if devise_mapping.omniauthable? %>
+    <div class="mt-3">
+      <p class="text-center">Or sign in with:</p>
+      <%- resource_class.omniauth_providers.each do |provider| %>
+        <% if provider.to_s == 'google_oauth2' %>
+          <%= button_to omniauth_authorize_path(resource_name, provider), data: { turbo: false }, class: "btn btn-outline-danger w-100 d-flex align-items-center justify-content-center gap-2" do %>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-google" viewBox="0 0 16 16">
+              <path d="M15.545 6.558a9.42 9.42 0 0 1 .139 1.626c0 2.434-.87 4.492-2.384 5.885h.002C11.978 15.292 10.158 16 8 16A8 8 0 1 1 8 0a7.689 7.689 0 0 1 5.352 2.082l-2.284 2.284A4.347 4.347 0 0 0 8 3.166c-2.087 0-3.86 1.408-4.492 3.304a4.792 4.792 0 0 0 0 3.063h.003c.635 1.893 2.405 3.301 4.492 3.301 1.078 0 2.004-.276 2.722-.764h-.003a3.702 3.702 0 0 0 1.599-2.431H8v-3.08h7.545z"/>
+            </svg>
+            <span>Sign in with Google</span>
+          <% end %>
+        <% else %>
+          <%= button_to "Sign in with #{OmniAuth::Utils.camelize(provider)}", omniauth_authorize_path(resource_name, provider), data: { turbo: false }, class: "btn btn-outline-secondary w-100 mb-2" %>
+        <% end %>
+      <% end %>
+    </div>
+  <% end %>
+</div>

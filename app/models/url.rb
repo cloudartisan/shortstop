@@ -1,9 +1,15 @@
 class Url < ApplicationRecord
+  belongs_to :user, optional: true
   has_many :visits, dependent: :destroy
   
-  validates :original_url, presence: true, uniqueness: true
+  validates :original_url, presence: true
   validates :original_url, url: { allow_blank: true }
   validates :shortened_path, uniqueness: true, allow_blank: true
+  
+  # Scope for finding duplicate URLs for the same user
+  scope :for_user_and_url, ->(user_id, original_url) {
+    where(user_id: user_id, original_url: original_url)
+  }
   
   before_create :generate_shortened_path
   

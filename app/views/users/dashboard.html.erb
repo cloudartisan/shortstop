@@ -1,0 +1,65 @@
+<h1>My Dashboard</h1>
+
+<div class="container">
+  <div class="row mb-4">
+    <div class="col">
+      <div class="card">
+        <div class="card-header">
+          <h4>My Account</h4>
+        </div>
+        <div class="card-body">
+          <p><strong>Name:</strong> <%= current_user.name %></p>
+          <p><strong>Email:</strong> <%= current_user.email %></p>
+          <p>
+            <%= link_to "Edit Profile", edit_user_registration_path, class: "btn btn-primary" %>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col">
+      <div class="card">
+        <div class="card-header">
+          <h4>My Shortened URLs</h4>
+        </div>
+        <div class="card-body">
+          <% if @urls.any? %>
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th>Original URL</th>
+                  <th>Shortened URL</th>
+                  <th>Visits</th>
+                  <th>Created</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% @urls.each do |url| %>
+                  <tr>
+                    <td style="max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                      <%= link_to url.original_url, url.original_url, target: "_blank", title: url.original_url %>
+                    </td>
+                    <td>
+                      <%= link_to url.short_url(request.base_url), short_path(url.shortened_path), target: "_blank" %>
+                    </td>
+                    <td><%= url.visits_count %></td>
+                    <td><%= time_ago_in_words(url.created_at) %> ago</td>
+                    <td>
+                      <%= link_to "Stats", stats_url_path(url.shortened_path), class: "btn btn-sm btn-info" %>
+                    </td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          <% else %>
+            <p>You haven't created any shortened URLs yet.</p>
+            <p><%= link_to "Create your first shortened URL", root_path, class: "btn btn-primary" %></p>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
