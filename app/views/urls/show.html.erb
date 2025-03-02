@@ -11,6 +11,12 @@
             <div class="alert alert-success"><%= flash[:notice] %></div>
           <% end %>
           
+          <% if @url.created_at > 1.minute.ago %>
+            <div class="alert alert-info">New URL created!</div>
+          <% else %>
+            <div class="alert alert-info">This URL was already in our system - reusing existing short URL.</div>
+          <% end %>
+          
           <% if @url %>
             <div class="mb-4">
               <h5>Original URL:</h5>

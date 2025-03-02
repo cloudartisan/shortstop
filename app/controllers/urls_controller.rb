@@ -5,16 +5,34 @@ class UrlsController < ApplicationController
     @recent_urls = Url.order(created_at: :desc).limit(5)
   end
 
-  # Create a new shortened URL
+  # Create a new shortened URL or reuse existing one
   def create
-    @url = Url.new(url_params)
+    # Check if the URL already exists in the database
+    existing_url = Url.find_by(original_url: url_params[:original_url])
     
-    if @url.save
-      # Set the shortened path using the record ID
-      @url.set_shortened_path
-      redirect_to url_path(@url.shortened_path), notice: 'URL was successfully shortened!'
+    if existing_url && existing_url.shortened_path.present?
+      # Reuse the existing URL if it has a shortened path
+      redirect_to url_path(existing_url.shortened_path), notice: 'URL was successfully shortened!'
     else
-      render :new, status: :unprocessable_entity
+      if existing_url
+        # Use the existing URL but ensure it has a shortened path
+        @url = existing_url
+      else
+        # Create a new URL
+        @url = Url.new(url_params)
+        @url.save
+      end
+      
+      # Set the shortened path if not already set
+      if @url.shortened_path.blank?
+        @url.set_shortened_path
+      end
+      
+      if @url.persisted?
+        redirect_to url_path(@url.shortened_path), notice: 'URL was successfully shortened!'
+      else
+        render :new, status: :unprocessable_entity
+      end
     end
   end
 
