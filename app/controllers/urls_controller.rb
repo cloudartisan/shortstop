@@ -2,6 +2,7 @@ class UrlsController < ApplicationController
   # Display form for creating a new shortened URL
   def new
     @url = Url.new
+    @recent_urls = Url.order(created_at: :desc).limit(5)
   end
 
   # Create a new shortened URL

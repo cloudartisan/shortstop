@@ -26,7 +26,49 @@ A modern URL shortening service built with Ruby on Rails 7.1 and Bootstrap 5. Th
 
 ## Installation
 
-### Setting up Ruby with rbenv
+### Using Make (Recommended)
+
+The project includes a Makefile with common commands to simplify development:
+
+1. Clone the repository:
+```bash
+git clone https://github.com/your-username/shortstop.git
+cd shortstop
+```
+
+2. Run the complete setup (sets up Ruby, installs dependencies, and initializes the database):
+```bash
+make setup
+```
+
+3. Start the server:
+```bash
+make server
+```
+
+4. Visit http://localhost:3000 in your web browser
+
+### Available Make Commands
+
+Run `make help` to see all available commands:
+
+- `make setup` - Complete first-time application setup
+- `make install` - Install dependencies via bundler
+- `make ruby-setup` - Set up Ruby with rbenv
+- `make db-setup` - Create and migrate the database
+- `make db-reset` - Drop, recreate, and migrate the database
+- `make db-migrate` - Run pending migrations
+- `make server` - Start the development server
+- `make console` - Open a Rails console
+- `make routes` - Show Rails routes
+- `make test` - Run tests
+- `make lint` - Run code linting
+
+### Manual Installation
+
+If you prefer not to use Make, follow these steps manually:
+
+#### Setting up Ruby with rbenv
 
 1. Install rbenv if you haven't already:
 ```bash
@@ -53,7 +95,7 @@ rbenv local 3.4.2
 ruby -v  # Verify you're using 3.4.2
 ```
 
-### Setting up PostgreSQL
+#### Setting up PostgreSQL
 
 1. Install PostgreSQL:
 ```bash
@@ -84,7 +126,7 @@ createuser -d -P shortstop
 createuser -d shortstop
 ```
 
-### Setting up the Application
+#### Setting up the Application
 
 1. Clone the repository:
 ```bash
@@ -104,10 +146,6 @@ bundle install
 
 4. Set up the database:
 ```bash
-# If you encounter migration errors, try dropping and recreating the database
-bundle exec rails db:drop db:create db:migrate
-
-# Or just to create and migrate without dropping
 bundle exec rails db:create db:migrate
 ```
 
@@ -163,9 +201,31 @@ Shortstop uses Base62 encoding (0-9, a-z, A-Z) to create short, unique URL slugs
 
 ## Development
 
-Run the tests:
+With Make:
 ```bash
+# Run tests
+make test
+
+# Start the Rails console
+make console
+
+# Show all routes
+make routes
+
+# Run linting
+make lint
+```
+
+Without Make:
+```bash
+# Run tests
 bundle exec rspec
+
+# Start the Rails console
+bundle exec rails console
+
+# Show all routes
+bundle exec rails routes
 ```
 
 ## License

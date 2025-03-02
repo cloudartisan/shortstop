@@ -34,6 +34,38 @@
               <div class="form-text">Enter a valid URL including https:// or http://</div>
             </div>
           <% end %>
+          
+          <% if @recent_urls.present? %>
+            <div class="mt-5">
+              <h4 class="border-bottom pb-2">Recently Shortened URLs</h4>
+              <div class="list-group mt-3">
+                <% @recent_urls.each do |url| %>
+                  <div class="list-group-item list-group-item-action">
+                    <div class="d-flex w-100 justify-content-between">
+                      <h6 class="mb-1 text-truncate" style="max-width: 70%;">
+                        <a href="<%= url.original_url %>" target="_blank">
+                          <%= url.original_url %>
+                        </a>
+                      </h6>
+                      <small class="text-muted"><%= time_ago_in_words(url.created_at) %> ago</small>
+                    </div>
+                    <p class="mb-1">
+                      <span class="badge bg-info text-light me-2"><%= url.visits_count %> visits</span>
+                      <small>
+                        <% if url.shortened_path.present? %>
+                          <a href="/<%= url.shortened_path %>" class="text-decoration-none">
+                            <%= short_url(url.shortened_path) %>
+                          </a>
+                        <% else %>
+                          Generating...
+                        <% end %>
+                      </small>
+                    </p>
+                  </div>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
         </div>
         
         <div class="card-footer bg-light">
