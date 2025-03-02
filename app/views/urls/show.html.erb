@@ -1,0 +1,77 @@
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="card shadow">
+        <div class="card-header bg-success text-white">
+          <h1 class="h3 mb-0">URL Successfully Shortened!</h1>
+        </div>
+        
+        <div class="card-body">
+          <% if flash[:notice] %>
+            <div class="alert alert-success"><%= flash[:notice] %></div>
+          <% end %>
+          
+          <% if @url %>
+            <div class="mb-4">
+              <h5>Original URL:</h5>
+              <p class="text-truncate border p-2 rounded bg-light"><%= @url.original_url %></p>
+            </div>
+            
+            <div class="mb-4">
+              <h5>Shortened URL:</h5>
+              <div class="input-group">
+                <input type="text" id="shortened-url" class="form-control" 
+                       value="<%= short_url(@url.shortened_path) %>" readonly>
+                <button class="btn btn-outline-primary" type="button" 
+                        onclick="copyToClipboard()">Copy</button>
+              </div>
+              
+              <!-- QR Code for the shortened URL -->
+              <div class="mt-3 text-center">
+                <p><strong>QR Code:</strong></p>
+                <img src="<%= qr_code_url(short_url(@url.shortened_path)) %>" 
+                     alt="QR Code" class="img-thumbnail" style="max-width: 200px;">
+              </div>
+            </div>
+            
+            <div class="d-flex justify-content-between mt-4">
+              <div>
+                <p class="text-muted mb-0">
+                  <small>Created: <%= @url.created_at.strftime("%B %d, %Y") %></small>
+                </p>
+                <p class="text-muted">
+                  <small>Visits: <%= @url.visits_count %></small>
+                </p>
+              </div>
+              <div>
+                <%= link_to "Shorten Another URL", root_path, class: "btn btn-primary" %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function copyToClipboard() {
+    const shortenedUrl = document.getElementById('shortened-url');
+    shortenedUrl.select();
+    document.execCommand('copy');
+    
+    // Show feedback
+    const button = document.querySelector('.btn-outline-primary');
+    const originalText = button.innerText;
+    button.innerText = 'Copied!';
+    button.classList.remove('btn-outline-primary');
+    button.classList.add('btn-success');
+    
+    // Reset after 2 seconds
+    setTimeout(() => {
+      button.innerText = originalText;
+      button.classList.remove('btn-success');
+      button.classList.add('btn-outline-primary');
+    }, 2000);
+  }
+</script>

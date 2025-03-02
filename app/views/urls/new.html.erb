@@ -1,15 +1,47 @@
-<h1>Add a new URL</h1>
-<%= form_for @shortened_url do |form| %>
-  <p>
-    <%= form.label :url, "Your URL:" %>
-    <%= form.text_field :url %>
-  </p>
-  <% if @shortened_url.errors[:url].any? %>
-    <p class='error-messages'>
-      The given url <%= @shortened_url.errors[:url].to_sentence %>.
-    </p>
-  <% end %>
-  <p class='buttons'>
-    <%= form.submit "Shorten my URL" %>
-  </p>
-<% end %>
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+          <h1 class="h3 mb-0">Shortstop URL Shortener</h1>
+        </div>
+        
+        <div class="card-body">
+          <% if flash[:alert] %>
+            <div class="alert alert-danger"><%= flash[:alert] %></div>
+          <% end %>
+          
+          <p class="lead mb-4">Enter a long URL to make it short and easy to share!</p>
+          
+          <%= form_with(model: @url, local: true, class: "url-form") do |form| %>
+            <% if @url.errors.any? %>
+              <div class="alert alert-danger">
+                <h2><%= pluralize(@url.errors.count, "error") %> prevented this URL from being shortened:</h2>
+                <ul>
+                  <% @url.errors.full_messages.each do |message| %>
+                    <li><%= message %></li>
+                  <% end %>
+                </ul>
+              </div>
+            <% end %>
+            
+            <div class="mb-3">
+              <%= form.label :original_url, "URL to shorten", class: "form-label" %>
+              <div class="input-group">
+                <%= form.url_field :original_url, class: "form-control form-control-lg", placeholder: "https://example.com/very/long/url/to/shorten", required: true, pattern: "https?://.+" %>
+                <%= form.submit "Shorten URL", class: "btn btn-primary btn-lg" %>
+              </div>
+              <div class="form-text">Enter a valid URL including https:// or http://</div>
+            </div>
+          <% end %>
+        </div>
+        
+        <div class="card-footer bg-light">
+          <p class="mb-0 text-center text-muted small">
+            Powered by <strong>Shortstop</strong> | Made with Ruby on Rails <%= Rails.version %>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

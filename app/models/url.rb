@@ -1,32 +1,36 @@
-# Use the model's ID (PK/Serial) to generate a token which can be reversed:
-#
-#   Url.find(7213).shortened        #=> 5kd
-#   Url.find_by_shortened("5kd")    #=> #<Url id: 7213...>
-#
-# Based on this gist:
-#
-#   https://gist.github.com/581399#file_active_record_url_shortening.rb
-class Url < ActiveRecord::Base
-  Radix = 36
-
-  validates :url, :presence => true
-  validates_url_format_of :url,
-                          :allow_nil => true,
-                          :message => 'is completely unacceptable'
-
-  # Convert URL ID to a shortened version
-  def shortened
-    id.to_s(Radix)
+class Url < ApplicationRecord
+  validates :original_url, presence: true
+  validates :original_url, url: { allow_blank: true }
+  validates :shortened_path, uniqueness: true, allow_blank: true
+  
+  before_create :generate_shortened_path
+  
+  # Generate random URL slug based on ID
+  def generate_shortened_path
+    return if self.shortened_path.present?
+    
+    # We'll set this after save since we need the ID
+    self.shortened_path = nil
   end
-
-  # Unconvert the shortened version back to the URL's ID
-  def self.shortened_to_id(shortened)
-    shortened.to_i(Radix)
+  
+  # Called after create to generate the shortened path
+  def set_shortened_path
+    update_column(:shortened_path, id.to_base62)
   end
-
-  # Unconvert shortened back to the URL's ID and lookup 
-  def self.find_by_shortened(shortened)
-    find shortened_to_id(shortened)
+  
+  # Increment the visits counter
+  def increment_visits!
+    increment!(:visits_count)
   end
-
+  
+  # Full shortened URL including host
+  def short_url(host = nil)
+    return nil unless shortened_path.present? && host.present?
+    "#{host}/#{shortened_path}"
+  end
+  
+  # Find a URL by its shortened path
+  def self.find_by_shortened_path(path)
+    find_by(shortened_path: path)
+  end
 end

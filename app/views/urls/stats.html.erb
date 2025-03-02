@@ -1,0 +1,75 @@
+<div class="row justify-content-center">
+  <div class="col-md-8">
+    <div class="card shadow">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h2 class="card-title mb-0">URL Statistics</h2>
+        <%= link_to "Back to URL", url_path(@url), class: "btn btn-sm btn-outline-primary" %>
+      </div>
+      
+      <div class="card-body">
+        <% if @url.title.present? %>
+          <h3 class="mb-3"><%= @url.title %></h3>
+        <% end %>
+        
+        <div class="mb-4">
+          <h5>URL Information</h5>
+          <p class="mb-1">
+            <strong>Original URL:</strong> 
+            <a href="<%= @url.normalized_url %>" target="_blank" rel="noopener">
+              <%= format_url(@url.original_url) %>
+            </a>
+          </p>
+          <p class="mb-1">
+            <strong>Short URL:</strong> 
+            <%= link_to short_url_url(@url.short_code), short_url_url(@url.short_code) %>
+          </p>
+          <p class="mb-1">
+            <strong>Created:</strong> 
+            <%= @url.created_at.strftime("%B %d, %Y at %H:%M") %>
+          </p>
+          <p class="mb-0">
+            <strong>Total Clicks:</strong> 
+            <%= @url.click_count %>
+          </p>
+        </div>
+        
+        <div class="mt-4">
+          <h5>Visit History</h5>
+          
+          <% if @visits.any? %>
+            <div class="table-responsive">
+              <table class="table table-hover">
+                <thead>
+                  <tr>
+                    <th>Time</th>
+                    <th>IP Address</th>
+                    <th>User Agent</th>
+                    <th>Referrer</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% @visits.each do |visit| %>
+                    <tr>
+                      <td><%= visit.created_at.strftime("%Y-%m-%d %H:%M") %></td>
+                      <td><%= visit.ip_address || 'Unknown' %></td>
+                      <td><%= format_url(visit.user_agent, 30) || 'Unknown' %></td>
+                      <td><%= format_url(visit.referer, 30) || 'Direct' %></td>
+                    </tr>
+                  <% end %>
+                </tbody>
+              </table>
+            </div>
+            
+            <div class="mt-3">
+              <%== pagy_bootstrap_nav(@pagy) %>
+            </div>
+          <% else %>
+            <div class="alert alert-info">
+              No visits recorded yet. Share your URL to start collecting statistics.
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
