@@ -46,6 +46,9 @@
                         <a href="<%= url.original_url %>" target="_blank">
                           <%= url.original_url %>
                         </a>
+                        <a href="<%= stats_url_path(url.shortened_path) %>" class="ms-2 badge bg-secondary text-white text-decoration-none">
+                          Stats
+                        </a>
                       </h6>
                       <small class="text-muted"><%= time_ago_in_words(url.created_at) %> ago</small>
                     </div>

@@ -8,5 +8,7 @@ class CreateVisits < ActiveRecord::Migration[7.1]
 
       t.timestamps
     end
+    
+    add_index :visits, :created_at
   end
 end

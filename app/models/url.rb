@@ -1,4 +1,6 @@
 class Url < ApplicationRecord
+  has_many :visits, dependent: :destroy
+  
   validates :original_url, presence: true, uniqueness: true
   validates :original_url, url: { allow_blank: true }
   validates :shortened_path, uniqueness: true, allow_blank: true

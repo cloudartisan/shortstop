@@ -1,75 +1,251 @@
-<div class="row justify-content-center">
-  <div class="col-md-8">
-    <div class="card shadow">
-      <div class="card-header d-flex justify-content-between align-items-center">
-        <h2 class="card-title mb-0">URL Statistics</h2>
-        <%= link_to "Back to URL", url_path(@url), class: "btn btn-sm btn-outline-primary" %>
-      </div>
-      
-      <div class="card-body">
-        <% if @url.title.present? %>
-          <h3 class="mb-3"><%= @url.title %></h3>
-        <% end %>
-        
-        <div class="mb-4">
-          <h5>URL Information</h5>
-          <p class="mb-1">
-            <strong>Original URL:</strong> 
-            <a href="<%= @url.normalized_url %>" target="_blank" rel="noopener">
-              <%= format_url(@url.original_url) %>
-            </a>
-          </p>
-          <p class="mb-1">
-            <strong>Short URL:</strong> 
-            <%= link_to short_url_url(@url.short_code), short_url_url(@url.short_code) %>
-          </p>
-          <p class="mb-1">
-            <strong>Created:</strong> 
-            <%= @url.created_at.strftime("%B %d, %Y at %H:%M") %>
-          </p>
-          <p class="mb-0">
-            <strong>Total Clicks:</strong> 
-            <%= @url.click_count %>
-          </p>
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-10">
+      <div class="card shadow">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+          <h1 class="h3 mb-0">URL Statistics</h1>
+          <a href="<%= url_path(@url.shortened_path) %>" class="btn btn-light btn-sm">Back to URL</a>
         </div>
         
-        <div class="mt-4">
-          <h5>Visit History</h5>
+        <div class="card-body">
+          <div class="row mb-4">
+            <div class="col-md-6">
+              <h5>Original URL:</h5>
+              <p class="text-truncate border p-2 rounded bg-light">
+                <a href="<%= @url.original_url %>" target="_blank"><%= @url.original_url %></a>
+              </p>
+            </div>
+            <div class="col-md-6">
+              <h5>Shortened URL:</h5>
+              <p class="border p-2 rounded bg-light">
+                <%= short_url(@url.shortened_path) %>
+                <button class="btn btn-sm btn-outline-primary ms-2" onclick="copyToClipboard()">Copy</button>
+              </p>
+              <input type="hidden" id="shortened-url" value="<%= short_url(@url.shortened_path) %>">
+            </div>
+          </div>
           
-          <% if @visits.any? %>
-            <div class="table-responsive">
-              <table class="table table-hover">
-                <thead>
-                  <tr>
-                    <th>Time</th>
-                    <th>IP Address</th>
-                    <th>User Agent</th>
-                    <th>Referrer</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <% @visits.each do |visit| %>
-                    <tr>
-                      <td><%= visit.created_at.strftime("%Y-%m-%d %H:%M") %></td>
-                      <td><%= visit.ip_address || 'Unknown' %></td>
-                      <td><%= format_url(visit.user_agent, 30) || 'Unknown' %></td>
-                      <td><%= format_url(visit.referer, 30) || 'Direct' %></td>
-                    </tr>
+          <div class="row mb-4">
+            <div class="col-md-4">
+              <div class="card border-info">
+                <div class="card-body text-center">
+                  <h6 class="card-subtitle mb-2 text-muted">Total Visits</h6>
+                  <h2 class="card-title"><%= @url.visits_count %></h2>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="card border-success">
+                <div class="card-body text-center">
+                  <h6 class="card-subtitle mb-2 text-muted">Created</h6>
+                  <h5 class="card-title"><%= @url.created_at.strftime("%b %d, %Y") %></h5>
+                  <p class="small text-muted"><%= time_ago_in_words(@url.created_at) %> ago</p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="card border-warning">
+                <div class="card-body text-center">
+                  <h6 class="card-subtitle mb-2 text-muted">Last Visit</h6>
+                  <% if @url.visits.any? %>
+                    <h5 class="card-title"><%= @url.visits.order(created_at: :desc).first.created_at.strftime("%b %d, %Y") %></h5>
+                    <p class="small text-muted"><%= time_ago_in_words(@url.visits.order(created_at: :desc).first.created_at) %> ago</p>
+                  <% else %>
+                    <h5 class="card-title">No visits yet</h5>
                   <% end %>
-                </tbody>
-              </table>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Visits chart -->
+          <div class="row mb-4">
+            <div class="col-12">
+              <div class="card">
+                <div class="card-header">
+                  <h5 class="card-title mb-0">Visits Over Time</h5>
+                </div>
+                <div class="card-body" style="height: 250px;"> <!-- Fixed height container -->
+                  <% if @daily_visits.present? && @daily_visits.any? %>
+                    <canvas id="visitsChart" style="width: 100%; height: 100%;"></canvas>
+                  <% else %>
+                    <div class="alert alert-info">
+                      No visit data available yet. Check back after your link has been used.
+                    </div>
+                  <% end %>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Browser and referrer stats -->
+          <div class="row">
+            <div class="col-md-6">
+              <div class="card h-100">
+                <div class="card-header">
+                  <h5 class="card-title mb-0">Browsers</h5>
+                </div>
+                <div class="card-body">
+                  <% if @browsers.present? && @browsers.any? %>
+                    <div class="table-responsive">
+                      <table class="table table-hover">
+                        <thead>
+                          <tr>
+                            <th>Browser</th>
+                            <th>Visits</th>
+                            <th>Percentage</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <% @browsers.each do |browser, count| %>
+                            <tr>
+                              <td><%= browser %></td>
+                              <td><%= count %></td>
+                              <td><%= number_to_percentage(count.to_f / @url.visits_count * 100, precision: 1) %></td>
+                            </tr>
+                          <% end %>
+                        </tbody>
+                      </table>
+                    </div>
+                  <% else %>
+                    <div class="alert alert-info">No browser data available yet.</div>
+                  <% end %>
+                </div>
+              </div>
             </div>
             
-            <div class="mt-3">
-              <%== pagy_bootstrap_nav(@pagy) %>
+            <div class="col-md-6">
+              <div class="card h-100">
+                <div class="card-header">
+                  <h5 class="card-title mb-0">Top Referrers</h5>
+                </div>
+                <div class="card-body">
+                  <% if @referrers.present? && @referrers.any? %>
+                    <div class="table-responsive">
+                      <table class="table table-hover">
+                        <thead>
+                          <tr>
+                            <th>Source</th>
+                            <th>Visits</th>
+                            <th>Percentage</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <% @referrers.each do |referrer, count| %>
+                            <tr>
+                              <td><%= referrer %></td>
+                              <td><%= count %></td>
+                              <td><%= number_to_percentage(count.to_f / @url.visits_count * 100, precision: 1) %></td>
+                            </tr>
+                          <% end %>
+                        </tbody>
+                      </table>
+                    </div>
+                  <% else %>
+                    <div class="alert alert-info">No referrer data available yet.</div>
+                  <% end %>
+                </div>
+              </div>
             </div>
-          <% else %>
-            <div class="alert alert-info">
-              No visits recorded yet. Share your URL to start collecting statistics.
-            </div>
-          <% end %>
+          </div>
+        </div>
+        
+        <div class="card-footer bg-light">
+          <div class="d-flex justify-content-between">
+            <a href="<%= root_path %>" class="btn btn-outline-secondary">Create New URL</a>
+            <a href="<%= url_path(@url.shortened_path) %>" class="btn btn-primary">View URL Details</a>
+          </div>
         </div>
       </div>
     </div>
   </div>
 </div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+  function copyToClipboard() {
+    const shortenedUrl = document.getElementById('shortened-url');
+    
+    // Create a temporary input element
+    const tempInput = document.createElement('input');
+    tempInput.value = shortenedUrl.value;
+    document.body.appendChild(tempInput);
+    
+    // Select the text
+    tempInput.select();
+    tempInput.setSelectionRange(0, 99999); // For mobile devices
+    
+    // Copy the text to the clipboard
+    document.execCommand('copy');
+    
+    // Remove the temporary input
+    document.body.removeChild(tempInput);
+    
+    // Show feedback
+    const button = document.querySelector('.btn-outline-primary');
+    const originalText = button.innerText;
+    button.innerText = 'Copied!';
+    button.classList.remove('btn-outline-primary');
+    button.classList.add('btn-success');
+    
+    // Reset after 2 seconds
+    setTimeout(() => {
+      button.innerText = originalText;
+      button.classList.remove('btn-success');
+      button.classList.add('btn-outline-primary');
+    }, 2000);
+  }
+  
+  <% if @daily_visits.present? && @daily_visits.any? %>
+  // Initialize the visits chart
+  document.addEventListener("DOMContentLoaded", function() {
+    const ctx = document.getElementById('visitsChart').getContext('2d');
+    
+    const chart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: <%= raw @chart_labels.to_json %>,
+        datasets: [{
+          label: 'Visits',
+          data: <%= raw @chart_data.to_json %>,
+          fill: false,
+          borderColor: 'rgb(75, 192, 192)',
+          tension: 0.1,
+          backgroundColor: 'rgba(75, 192, 192, 0.5)'
+        }]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              precision: 0
+            },
+            // Limit the maximum height of the chart
+            suggestedMax: 10
+          }
+        },
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: false
+          },
+          tooltip: {
+            callbacks: {
+              title: function(tooltipItems) {
+                return tooltipItems[0].label;
+              },
+              label: function(context) {
+                return `Visits: ${context.raw}`;
+              }
+            }
+          }
+        }
+      }
+    });
+  });
+  <% end %>
+</script>

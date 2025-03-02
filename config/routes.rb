@@ -3,7 +3,11 @@ Rails.application.routes.draw do
   root 'urls#new'
   
   # URL resources for create and show operations
-  resources :urls, only: [:new, :create, :show]
+  resources :urls, only: [:new, :create, :show] do
+    member do
+      get 'stats' # Adds /urls/:id/stats route
+    end
+  end
   
   # Short URL redirection (for example: /abc123)
   get '/:shortened_path', to: 'urls#redirect', as: :short
