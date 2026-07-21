@@ -74,8 +74,8 @@ GEM
       minitest (>= 5.1, < 6)
       securerandom (>= 0.3)
       tzinfo (~> 2.0, >= 2.0.5)
-    addressable (2.8.7)
-      public_suffix (>= 2.0.2, < 7.0)
+    addressable (2.9.0)
+      public_suffix (>= 2.0.2, < 8.0)
     autoprefixer-rails (10.4.19.0)
       execjs (~> 2)
     base64 (0.3.0)
@@ -156,7 +156,7 @@ GEM
       actionview (>= 5.0.0)
       activesupport (>= 5.0.0)
     json (2.19.9)
-    jwt (2.10.1)
+    jwt (2.10.3)
       base64
     logger (1.7.0)
     loofah (2.25.1)
@@ -226,8 +226,8 @@ GEM
     psych (5.4.0)
       date
       stringio
-    public_suffix (6.0.1)
-    puma (6.6.0)
+    public_suffix (7.0.5)
+    puma (7.2.1)
       nio4r (~> 2.0)
     racc (1.8.1)
     rack (3.2.6)
@@ -378,11 +378,12 @@ DEPENDENCIES
   friendly_id
   importmap-rails
   jbuilder
+  jwt (~> 2.10, >= 2.10.3)
   omniauth-google-oauth2
   omniauth-rails_csrf_protection
   pagy
   pg (~> 1.1)
-  puma (>= 5.0)
+  puma (~> 7.2, >= 7.2.1)
   rails (~> 7.2.3.1)
   rspec-rails
   sassc-rails
