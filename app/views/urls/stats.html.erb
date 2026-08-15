@@ -1,75 +1,91 @@
+<% content_for :title, "Statistics - Shortstop" %>
+<% content_for :head do %>
+  <%# Pinned and integrity-checked. This used to load an unversioned "latest". %>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.9/dist/chart.umd.min.js"
+          integrity="sha384-b0GXujLkk9eYYSmcSfoyZbfyElGAQnDyY0skCHSG6w3JgTMFnz11ggrTAr7seu9f"
+          crossorigin="anonymous" defer></script>
+<% end %>
 <div class="container mt-5">
   <div class="row justify-content-center">
     <div class="col-md-10">
       <div class="card shadow">
         <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
           <h1 class="h3 mb-0">URL Statistics</h1>
-          <a href="<%= url_path(@url.shortened_path) %>" class="btn btn-light btn-sm">Back to URL</a>
+          <%= link_to "Back to URL", url_path(@url.shortened_path), class: "btn btn-light btn-sm" %>
         </div>
-        
+
         <div class="card-body">
           <div class="row mb-4">
             <div class="col-md-6">
-              <h5>Original URL:</h5>
+              <h2 class="h5">Original URL:</h2>
               <p class="text-truncate border p-2 rounded bg-light">
-                <a href="<%= @url.original_url %>" target="_blank"><%= @url.original_url %></a>
+                <a href="<%= @url.original_url %>" target="_blank" rel="noopener noreferrer"><%= @url.original_url %></a>
               </p>
             </div>
             <div class="col-md-6">
-              <h5>Shortened URL:</h5>
-              <p class="border p-2 rounded bg-light">
-                <%= short_url(@url.shortened_path) %>
-                <button class="btn btn-sm btn-outline-primary ms-2" onclick="copyToClipboard()">Copy</button>
-              </p>
-              <input type="hidden" id="shortened-url" value="<%= short_url(@url.shortened_path) %>">
+              <h2 class="h5">Shortened URL:</h2>
+              <div class="input-group" data-controller="clipboard">
+                <label class="visually-hidden" for="shortened-url">Shortened URL</label>
+                <input type="text" id="shortened-url" class="form-control" readonly
+                       data-clipboard-target="source"
+                       value="<%= full_short_url(@url.shortened_path) %>">
+                <button class="btn btn-outline-primary" type="button"
+                        data-clipboard-target="button"
+                        data-action="clipboard#copy">Copy</button>
+              </div>
             </div>
           </div>
-          
+
           <div class="row mb-4">
             <div class="col-md-4">
               <div class="card border-info">
                 <div class="card-body text-center">
-                  <h6 class="card-subtitle mb-2 text-muted">Total Visits</h6>
-                  <h2 class="card-title"><%= @url.visits_count %></h2>
+                  <h3 class="h6 card-subtitle mb-2 text-muted">Total Visits</h3>
+                  <p class="display-6 mb-0"><%= format_number(@total_visits) %></p>
                 </div>
               </div>
             </div>
             <div class="col-md-4">
               <div class="card border-success">
                 <div class="card-body text-center">
-                  <h6 class="card-subtitle mb-2 text-muted">Created</h6>
-                  <h5 class="card-title"><%= @url.created_at.strftime("%b %d, %Y") %></h5>
-                  <p class="small text-muted"><%= time_ago_in_words(@url.created_at) %> ago</p>
+                  <h3 class="h6 card-subtitle mb-2 text-muted">Created</h3>
+                  <p class="h5 mb-1"><%= @url.created_at.strftime("%b %d, %Y") %></p>
+                  <p class="small text-muted mb-0"><%= time_ago_in_words(@url.created_at) %> ago</p>
                 </div>
               </div>
             </div>
             <div class="col-md-4">
               <div class="card border-warning">
                 <div class="card-body text-center">
-                  <h6 class="card-subtitle mb-2 text-muted">Last Visit</h6>
-                  <% if @url.visits.any? %>
-                    <h5 class="card-title"><%= @url.visits.order(created_at: :desc).first.created_at.strftime("%b %d, %Y") %></h5>
-                    <p class="small text-muted"><%= time_ago_in_words(@url.visits.order(created_at: :desc).first.created_at) %> ago</p>
+                  <h3 class="h6 card-subtitle mb-2 text-muted">Last Visit</h3>
+                  <% if @last_visit_at %>
+                    <p class="h5 mb-1"><%= @last_visit_at.strftime("%b %d, %Y") %></p>
+                    <p class="small text-muted mb-0"><%= time_ago_in_words(@last_visit_at) %> ago</p>
                   <% else %>
-                    <h5 class="card-title">No visits yet</h5>
+                    <p class="h5 mb-0">No visits yet</p>
                   <% end %>
                 </div>
               </div>
             </div>
           </div>
-          
+
           <!-- Visits chart -->
           <div class="row mb-4">
             <div class="col-12">
               <div class="card">
                 <div class="card-header">
-                  <h5 class="card-title mb-0">Visits Over Time</h5>
+                  <h2 class="h5 card-title mb-0">Visits Over Time</h2>
                 </div>
-                <div class="card-body" style="height: 250px;"> <!-- Fixed height container -->
-                  <% if @daily_visits.present? && @daily_visits.any? %>
-                    <canvas id="visitsChart" style="width: 100%; height: 100%;"></canvas>
+                <div class="card-body" style="height: 250px;">
+                  <% if @total_visits.positive? %>
+                    <canvas id="visitsChart" style="width: 100%; height: 100%;"
+                            data-controller="visits-chart"
+                            data-visits-chart-labels-value="<%= @chart_labels.to_json %>"
+                            data-visits-chart-data-value="<%= @chart_data.to_json %>"
+                            role="img"
+                            aria-label="Daily visits over the last 30 days, totalling <%= @total_visits %> visits"></canvas>
                   <% else %>
-                    <div class="alert alert-info">
+                    <div class="alert alert-info" role="status">
                       No visit data available yet. Check back after your link has been used.
                     </div>
                   <% end %>
@@ -77,175 +93,40 @@
               </div>
             </div>
           </div>
-          
+
           <!-- Browser and referrer stats -->
           <div class="row">
             <div class="col-md-6">
               <div class="card h-100">
                 <div class="card-header">
-                  <h5 class="card-title mb-0">Browsers</h5>
+                  <h2 class="h5 card-title mb-0">Browsers</h2>
                 </div>
                 <div class="card-body">
-                  <% if @browsers.present? && @browsers.any? %>
-                    <div class="table-responsive">
-                      <table class="table table-hover">
-                        <thead>
-                          <tr>
-                            <th>Browser</th>
-                            <th>Visits</th>
-                            <th>Percentage</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <% @browsers.each do |browser, count| %>
-                            <tr>
-                              <td><%= browser %></td>
-                              <td><%= count %></td>
-                              <td><%= number_to_percentage(count.to_f / @url.visits_count * 100, precision: 1) %></td>
-                            </tr>
-                          <% end %>
-                        </tbody>
-                      </table>
-                    </div>
-                  <% else %>
-                    <div class="alert alert-info">No browser data available yet.</div>
-                  <% end %>
+                  <%= render "urls/breakdown", rows: @browsers, label: "Browser", empty: "No browser data available yet." %>
                 </div>
               </div>
             </div>
-            
+
             <div class="col-md-6">
               <div class="card h-100">
                 <div class="card-header">
-                  <h5 class="card-title mb-0">Top Referrers</h5>
+                  <h2 class="h5 card-title mb-0">Top Referrers</h2>
                 </div>
                 <div class="card-body">
-                  <% if @referrers.present? && @referrers.any? %>
-                    <div class="table-responsive">
-                      <table class="table table-hover">
-                        <thead>
-                          <tr>
-                            <th>Source</th>
-                            <th>Visits</th>
-                            <th>Percentage</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <% @referrers.each do |referrer, count| %>
-                            <tr>
-                              <td><%= referrer %></td>
-                              <td><%= count %></td>
-                              <td><%= number_to_percentage(count.to_f / @url.visits_count * 100, precision: 1) %></td>
-                            </tr>
-                          <% end %>
-                        </tbody>
-                      </table>
-                    </div>
-                  <% else %>
-                    <div class="alert alert-info">No referrer data available yet.</div>
-                  <% end %>
+                  <%= render "urls/breakdown", rows: @referrers, label: "Source", empty: "No referrer data available yet." %>
                 </div>
               </div>
             </div>
           </div>
         </div>
-        
+
         <div class="card-footer bg-light">
           <div class="d-flex justify-content-between">
-            <a href="<%= root_path %>" class="btn btn-outline-secondary">Create New URL</a>
-            <a href="<%= url_path(@url.shortened_path) %>" class="btn btn-primary">View URL Details</a>
+            <%= link_to "Create New URL", root_path, class: "btn btn-outline-secondary" %>
+            <%= link_to "View URL Details", url_path(@url.shortened_path), class: "btn btn-primary" %>
           </div>
         </div>
       </div>
     </div>
   </div>
 </div>
-
-<!-- Chart.js -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-<script>
-  function copyToClipboard() {
-    const shortenedUrl = document.getElementById('shortened-url');
-    
-    // Create a temporary input element
-    const tempInput = document.createElement('input');
-    tempInput.value = shortenedUrl.value;
-    document.body.appendChild(tempInput);
-    
-    // Select the text
-    tempInput.select();
-    tempInput.setSelectionRange(0, 99999); // For mobile devices
-    
-    // Copy the text to the clipboard
-    document.execCommand('copy');
-    
-    // Remove the temporary input
-    document.body.removeChild(tempInput);
-    
-    // Show feedback
-    const button = document.querySelector('.btn-outline-primary');
-    const originalText = button.innerText;
-    button.innerText = 'Copied!';
-    button.classList.remove('btn-outline-primary');
-    button.classList.add('btn-success');
-    
-    // Reset after 2 seconds
-    setTimeout(() => {
-      button.innerText = originalText;
-      button.classList.remove('btn-success');
-      button.classList.add('btn-outline-primary');
-    }, 2000);
-  }
-  
-  <% if @daily_visits.present? && @daily_visits.any? %>
-  // Initialize the visits chart
-  document.addEventListener("DOMContentLoaded", function() {
-    const ctx = document.getElementById('visitsChart').getContext('2d');
-    
-    const chart = new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: <%= raw @chart_labels.to_json %>,
-        datasets: [{
-          label: 'Visits',
-          data: <%= raw @chart_data.to_json %>,
-          fill: false,
-          borderColor: 'rgb(75, 192, 192)',
-          tension: 0.1,
-          backgroundColor: 'rgba(75, 192, 192, 0.5)'
-        }]
-      },
-      options: {
-        responsive: true,
-        scales: {
-          y: {
-            beginAtZero: true,
-            ticks: {
-              precision: 0
-            },
-            // Limit the maximum height of the chart
-            suggestedMax: 10
-          }
-        },
-        maintainAspectRatio: false,
-        plugins: {
-          legend: {
-            display: false
-          },
-          tooltip: {
-            callbacks: {
-              title: function(tooltipItems) {
-                return tooltipItems[0].label;
-              },
-              label: function(context) {
-                return `Visits: ${context.raw}`;
-              }
-            }
-          }
-        }
-      }
-    });
-  });
-  <% end %>
-</script>
