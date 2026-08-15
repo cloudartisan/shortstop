@@ -1,0 +1,27 @@
+<%# Percentages are taken against this table's own total, so they always sum
+    to 100. They used to divide by urls.visits_count, which drifted. %>
+<% if rows.present? %>
+  <% total = rows.values.sum %>
+  <div class="table-responsive">
+    <table class="table table-hover">
+      <thead>
+        <tr>
+          <th scope="col"><%= label %></th>
+          <th scope="col">Visits</th>
+          <th scope="col">Percentage</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% rows.each do |name, count| %>
+          <tr>
+            <td><%= name %></td>
+            <td><%= format_number(count) %></td>
+            <td><%= share_of(count, total) %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+<% else %>
+  <div class="alert alert-info mb-0" role="status"><%= empty %></div>
+<% end %>

@@ -39,3 +39,9 @@
 
 # Ignore .env file that might contain OAuth secrets
 /.env
+
+# RSpec persists last-run status here for --only-failures
+/spec/examples.txt
+
+# ctags index
+/tags

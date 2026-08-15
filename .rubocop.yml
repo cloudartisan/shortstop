@@ -1,0 +1,25 @@
+# Rails' own house style, plus RSpec cops.
+inherit_gem:
+  rubocop-rails-omakase: rubocop.yml
+
+plugins:
+  - rubocop-rspec
+
+AllCops:
+  TargetRubyVersion: 3.4
+  NewCops: enable
+  Exclude:
+    - "bin/**/*"
+    - "db/schema.rb"
+    - "vendor/**/*"
+    - "node_modules/**/*"
+    - "tmp/**/*"
+
+# Specs are allowed to be long and to hold several expectations per example
+# where they describe one behaviour.
+RSpec/ExampleLength:
+  Enabled: false
+RSpec/MultipleExpectations:
+  Enabled: false
+RSpec/NestedGroups:
+  Max: 4

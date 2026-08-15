@@ -1,0 +1,14 @@
+{
+  "ignored_warnings": [
+    {
+      "warning_type": "Redirect",
+      "warning_code": 18,
+      "fingerprint": "227e8be2290eadeedc473a8c5f880af2c0ca38e12106962527ffcf348c4d0f5e",
+      "check_name": "Redirect",
+      "message": "Possible unprotected redirect",
+      "file": "app/controllers/urls_controller.rb",
+      "note": "Redirecting to a user-supplied URL is the entire purpose of a URL shortener. The destination is validated by the validate_url gem on create, allow_other_host is deliberate, and the redirect is a 302 to a stored value rather than to a request parameter."
+    }
+  ],
+  "brakeman_version": "8.0.6"
+}

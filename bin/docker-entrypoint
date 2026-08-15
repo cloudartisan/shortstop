@@ -1,7 +1,10 @@
 #!/bin/bash -e
 
-# If running the rails server then create or migrate existing database
-if [ "${1}" == "./bin/rails" ] && [ "${2}" == "server" ]; then
+# Prepare the database whenever we are starting the Rails server, however the
+# command was spelled. The previous version only matched the exact argv
+# "./bin/rails server", so docker compose's bash -c wrapper skipped it and the
+# app booted against a database that had never been created.
+if [[ "${*}" == *"rails server"* || "${*}" == *"rails s"* ]]; then
   ./bin/rails db:prepare
 fi
 

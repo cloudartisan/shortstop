@@ -1,10 +1,9 @@
 source "https://rubygems.org"
 
-ruby "3.4.2"
+ruby "3.4.10"
 
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
-gem "rails", "~> 7.2.3.2"
-gem "websocket-driver", "~> 0.8", ">= 0.8.2"
+gem "rails", "~> 8.1.3"
 
 # The original asset pipeline for Rails [https://github.com/rails/sprockets-rails]
 gem "sprockets-rails"
@@ -30,22 +29,15 @@ gem "jbuilder"
 # URL validation
 gem "validate_url"
 
-# Pagination
-gem "pagy"
-
-# Friendly IDs for SEO
-gem "friendly_id"
-
-# Bootstrap for styling
-gem "bootstrap", "~> 5.2"
-gem "sassc-rails"
+# QR codes, rendered locally as SVG. Previously every short link (and the
+# viewer's IP) was sent to a third-party QR service to be drawn.
+gem "rqrcode", "~> 3.0"
 
 # Authentication
 gem "devise", "~> 5.0"
-gem "jwt", "~> 2.10", ">= 2.10.3"
 gem "omniauth-google-oauth2"
 gem "omniauth-rails_csrf_protection"
-gem "dotenv-rails", groups: [:development, :test]
+gem "dotenv-rails", groups: [ :development, :test ]
 
 # Use Redis adapter to run Action Cable in production
 # gem "redis", ">= 4.0.1"
@@ -70,6 +62,14 @@ group :development, :test do
   gem "debug", platforms: %i[ mri windows ]
   gem "rspec-rails"
   gem "factory_bot_rails"
+
+  # Linting and static analysis, run in CI
+  gem "rubocop-rails-omakase", require: false
+  gem "rubocop-rspec", require: false
+
+  # Static security analysis and known-CVE checking, run in CI
+  gem "brakeman", require: false
+  gem "bundler-audit", require: false
 end
 
 group :development do
