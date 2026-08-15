@@ -1,9 +1,7 @@
 <% content_for :title, "Statistics - Shortstop" %>
 <% content_for :head do %>
-  <%# Pinned and integrity-checked. This used to load an unversioned "latest". %>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.9/dist/chart.umd.min.js"
-          integrity="sha384-b0GXujLkk9eYYSmcSfoyZbfyElGAQnDyY0skCHSG6w3JgTMFnz11ggrTAr7seu9f"
-          crossorigin="anonymous" defer></script>
+  <%# Vendored. This used to load an unversioned "latest" from a CDN. %>
+  <%= javascript_include_tag "chart.umd.min", defer: true %>
 <% end %>
 <div class="container mt-5">
   <div class="row justify-content-center">

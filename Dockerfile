@@ -9,12 +9,12 @@ WORKDIR /rails
 
 ENV BUNDLE_PATH="/usr/local/bundle"
 
-# Packages needed to build gems and to talk to PostgreSQL. nodejs is required
-# even at runtime in development, because the asset pipeline compiles CSS
-# through autoprefixer-rails, which needs a JavaScript runtime.
+# Packages needed to build gems and to talk to PostgreSQL. No Node here: the
+# app uses importmap-rails, so there is no JavaScript build step, and nothing
+# left in the bundle needs an ExecJS runtime.
 RUN apt-get update -qq && \
     apt-get install --no-install-recommends -y \
-      build-essential curl git libpq-dev libyaml-dev nodejs pkg-config postgresql-client && \
+      build-essential curl git libpq-dev libyaml-dev pkg-config postgresql-client && \
     rm -rf /var/lib/apt/lists/* /var/cache/apt/archives
 
 

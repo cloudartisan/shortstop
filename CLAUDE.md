@@ -15,9 +15,8 @@
 
 ## Local prerequisites
 - Ruby 3.4.10, PostgreSQL, Bundler
-- Node.js. The asset pipeline compiles CSS through `autoprefixer-rails`, which
-  needs a JavaScript runtime; without one every page raises
-  `ExecJS::RuntimeUnavailable`. Docker handles this for you.
+- No Node.js and no JavaScript build step; the front end is served through
+  importmap-rails.
 
 ## Authentication Setup
 - OAuth is optional; the Google button is hidden unless both are set.

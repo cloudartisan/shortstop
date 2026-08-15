@@ -1,13 +1,24 @@
 import { Controller } from "@hotwired/stimulus"
 
-// Renders the visits-over-time chart. Chart.js is loaded from a pinned CDN in
-// the layout; if it is unavailable the canvas simply stays empty and the
-// aria-label still describes the data.
+// Renders the visits-over-time chart. Chart.js is vendored and loaded as a
+// deferred classic script, which the browser may execute after this module, so
+// connect() cannot assume the global exists yet.
 export default class extends Controller {
   static values = { labels: Array, data: Array }
 
   connect() {
-    if (typeof Chart === "undefined") return
+    if (typeof Chart !== "undefined") {
+      this.render()
+    } else {
+      this.onLoad = () => this.render()
+      window.addEventListener("load", this.onLoad, { once: true })
+    }
+  }
+
+  render() {
+    // If Chart.js failed to load entirely, leave the canvas empty; the
+    // aria-label still describes the data and the tables below carry it.
+    if (typeof Chart === "undefined" || this.chart) return
 
     this.chart = new Chart(this.element, {
       type: "line",
@@ -35,6 +46,8 @@ export default class extends Controller {
   }
 
   disconnect() {
+    if (this.onLoad) window.removeEventListener("load", this.onLoad)
     this.chart?.destroy()
+    this.chart = null
   }
 }

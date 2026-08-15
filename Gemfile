@@ -29,6 +29,10 @@ gem "jbuilder"
 # URL validation
 gem "validate_url"
 
+# QR codes, rendered locally as SVG. Previously every short link (and the
+# viewer's IP) was sent to a third-party QR service to be drawn.
+gem "rqrcode", "~> 3.0"
+
 # Authentication
 gem "devise", "~> 5.0"
 gem "omniauth-google-oauth2"

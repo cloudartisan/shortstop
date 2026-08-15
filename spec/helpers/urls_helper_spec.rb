@@ -35,15 +35,20 @@ RSpec.describe UrlsHelper, type: :helper do
     end
   end
 
-  describe "#qr_code_url" do
-    it "generates a QR code URL for a given URL" do
-      expect(helper.qr_code_url("http://example.com/abc123"))
-        .to eq("https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=http%3A%2F%2Fexample.com%2Fabc123")
+  describe "#qr_code_svg" do
+    it "renders an inline SVG rather than calling a third party" do
+      svg = helper.qr_code_svg("http://example.com/abc123")
+      expect(svg).to include("<svg")
+      expect(svg).not_to include("api.qrserver.com")
     end
 
-    it "allows custom size" do
-      expect(helper.qr_code_url("http://example.com", 300))
-        .to eq("https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=http%3A%2F%2Fexample.com")
+    it "labels the QR code for assistive technology" do
+      expect(helper.qr_code_svg("http://example.com/abc123"))
+        .to include('aria-label="QR code for http://example.com/abc123"')
+    end
+
+    it "allows a custom size" do
+      expect(helper.qr_code_svg("http://example.com", size: 300)).to include('width="300"')
     end
   end
 end

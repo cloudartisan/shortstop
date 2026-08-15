@@ -54,9 +54,10 @@ Prerequisites:
 
 - Ruby 3.4.10 (managed with rbenv)
 - PostgreSQL
-- Node.js — the asset pipeline compiles CSS through `autoprefixer-rails`, which
-  needs a JavaScript runtime. Without it every page raises `ExecJS::RuntimeUnavailable`.
 - Bundler
+
+No Node.js and no JavaScript build step: the front end is served through
+importmap-rails.
 
 ```bash
 git clone https://github.com/cloudartisan/shortstop.git
@@ -137,9 +138,6 @@ bundle exec bundler-audit check --update   # dependency CVEs
 CI runs all four on every push and pull request. See `.github/workflows/ci.yml`.
 
 ## Troubleshooting
-
-**`ExecJS::RuntimeUnavailable` on every page.** Install Node.js. See the local
-prerequisites above.
 
 **PostgreSQL connection failures.** Check the service is running and that the
 `POSTGRES_*` environment variables match your setup. With Docker this is handled

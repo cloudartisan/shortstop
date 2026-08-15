@@ -1,15 +1,36 @@
 /*
- * This is a manifest file that'll be compiled into application.css, which will include all the files
- * listed below.
+ * This is a manifest file that'll be compiled into application.css.
  *
- * Any CSS (and SCSS, if configured) file within this directory, lib/assets/stylesheets, or any plugin's
- * vendor/assets/stylesheets directory can be referenced here using a relative path.
+ * Bootstrap is vendored in vendor/assets/stylesheets so the app has no runtime
+ * dependency on a CDN, and so a Content-Security-Policy can be enforced.
  *
- * You're free to add application-wide styles to this file and they'll appear at the bottom of the
- * compiled file so the styles you add here take precedence over styles defined in any other CSS
- * files in this directory. Styles in this file should be added after the last require_* statement.
- * It is generally better to create a new file per style scope.
- *
+ *= require bootstrap.min
  *= require_tree .
  *= require_self
  */
+
+/* Keyboard focus must stay visible on the dark navbar and on outline buttons. */
+:focus-visible {
+  outline: 3px solid #0d6efd;
+  outline-offset: 2px;
+}
+
+.navbar-dark :focus-visible {
+  outline-color: #9ec5fe;
+}
+
+/* Skip link: off-screen until focused. */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 1100;
+  padding: 0.75rem 1rem;
+  background: #fff;
+  color: #0d6efd;
+  font-weight: 600;
+}
+
+.skip-link:focus {
+  left: 0;
+}

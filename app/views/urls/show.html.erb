@@ -25,12 +25,10 @@
                       data-action="clipboard#copy">Copy</button>
             </div>
 
-            <!-- QR Code for the shortened URL -->
+            <!-- QR Code for the shortened URL, generated locally -->
             <div class="mt-3 text-center">
               <p><strong>QR Code:</strong></p>
-              <img src="<%= qr_code_url(full_short_url(@url.shortened_path)) %>"
-                   alt="QR code for <%= full_short_url(@url.shortened_path) %>"
-                   width="200" height="200" class="img-thumbnail" style="max-width: 200px;">
+              <%= qr_code_svg(full_short_url(@url.shortened_path)) %>
             </div>
           </div>
 

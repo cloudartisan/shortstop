@@ -61,7 +61,7 @@
                       <small class="text-muted"><%= time_ago_in_words(url.created_at) %> ago</small>
                     </div>
                     <p class="mb-1">
-                      <span class="badge bg-info text-dark me-2"><%= pluralize(url.visits_count, "visit") %></span>
+                      <span class="badge text-bg-info me-2"><%= pluralize(url.visits_count, "visit") %></span>
                       <small>
                         <%= link_to full_short_url(url.shortened_path), short_path(url.shortened_path), class: "text-decoration-none" %>
                       </small>
