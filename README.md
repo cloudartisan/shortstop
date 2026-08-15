@@ -1,270 +1,155 @@
 # Shortstop URL Shortener
 
-A modern URL shortening service built with Ruby on Rails 7.1 and Bootstrap 5. This project is a complete rewrite of an older Rails 3.0 application, updated to use modern Rails features and best practices.
+A URL shortening service built with Ruby on Rails 8 and Bootstrap 5. This project is a rewrite of an older Rails 3.0 application.
 
 ## Features
 
-- Shorten long URLs to easy-to-share links
-- User accounts with email or Google OAuth authentication
-- Personal dashboard to manage all your shortened URLs
-- Track the number of visits for each shortened URL
+- Shorten long URLs to easy-to-share links, with or without an account
+- Optional accounts, by email or Google sign-in, so your links follow you between devices
+- Personal dashboard listing the URLs you have created
+- Per-link statistics: visits over time, browser breakdown and top referrers
 - QR codes for easy mobile sharing
-- Copy to clipboard functionality
-- Clean, responsive design using Bootstrap 5
+- Copy to clipboard
+- Responsive design using Bootstrap 5
+
+Signing in is optional. Anonymous links work exactly the same way; they are just
+remembered in your browser session rather than tied to an account.
 
 ## Technical Details
 
-- Rails 7.1.3
-- Ruby 3.4.2
-- PostgreSQL database
-- Base62 encoding for URL shortening
-- Bootstrap 5 for frontend styling
-- Devise for authentication
-- OmniAuth for Google sign-in integration
+- Rails 8.1
+- Ruby 3.4.10
+- PostgreSQL
+- Hotwire (Turbo and Stimulus) over importmap-rails, no JavaScript build step
+- Random Base62 slugs, so short links cannot be enumerated
+- Devise for authentication, OmniAuth for Google sign-in
 
-## Requirements
+## Running it
 
-- Ruby 3.4.2 (managed with rbenv)
-- PostgreSQL server
-- Bundler gem
+### With Docker (recommended)
 
-## Installation
+The only prerequisite is Docker.
 
-### Using Make (Recommended)
-
-The project includes a Makefile with common commands to simplify development:
-
-1. Clone the repository:
 ```bash
-git clone https://github.com/your-username/shortstop.git
+git clone https://github.com/cloudartisan/shortstop.git
 cd shortstop
+make docker-up
 ```
 
-2. Run the complete setup (sets up Ruby, installs dependencies, and initializes the database):
+That builds the image, starts PostgreSQL, creates and migrates the database and
+serves the app on http://localhost:3000. Your working tree is mounted into the
+container, so edits are picked up without a rebuild.
+
 ```bash
-make setup
+make docker-logs    # follow the application log
+make docker-shell   # a shell inside the container
+make docker-down    # stop everything and remove the volumes
 ```
 
-3. Configure Google OAuth (for social login):
-   - Create a project at https://console.developers.google.com/
-   - Enable the Google+ API
-   - Create OAuth credentials (Web application type)
-   - Add authorized redirect URIs:
-     - For development: `http://localhost:3000/users/auth/google_oauth2/callback`
-   - Create a `.env` file in the project root (copy from `.env.example`):
-     ```
-     GOOGLE_CLIENT_ID=your_client_id
-     GOOGLE_CLIENT_SECRET=your_client_secret
-     ```
+To seed the sample account and links, run `docker compose exec web ./bin/rails db:seed`.
 
-4. Start the server:
+### Locally
+
+Prerequisites:
+
+- Ruby 3.4.10 (managed with rbenv)
+- PostgreSQL
+- Node.js — the asset pipeline compiles CSS through `autoprefixer-rails`, which
+  needs a JavaScript runtime. Without it every page raises `ExecJS::RuntimeUnavailable`.
+- Bundler
+
 ```bash
+git clone https://github.com/cloudartisan/shortstop.git
+cd shortstop
+make setup     # installs Ruby via rbenv, bundles, creates and seeds the database
 make server
 ```
 
-5. Visit http://localhost:3000 in your web browser
+Then visit http://localhost:3000.
 
-   For local testing, a test user is already created with:
-   - Email: admin@example.com
-   - Password: password123
+`config/database.yml` reads `POSTGRES_HOST`, `POSTGRES_PORT`, `POSTGRES_USER`,
+`POSTGRES_PASSWORD` and `POSTGRES_DB` from the environment, defaulting to a
+local socket-less connection on `localhost:5432`. Set them in `.env` if your
+setup differs, or set `DATABASE_URL` to override the lot.
 
-### Available Make Commands
+### The seeded account
 
-Run `make help` to see all available commands:
+`rails db:seed` creates a development user with sample links and visit data:
 
-- `make setup` - Complete first-time application setup
-- `make install` - Install dependencies via bundler
-- `make ruby-setup` - Set up Ruby with rbenv
-- `make db-setup` - Create and migrate the database
-- `make db-reset` - Drop, recreate, and migrate the database
-- `make db-migrate` - Run pending migrations
-- `make server` - Start the development server
-- `make console` - Open a Rails console
-- `make routes` - Show Rails routes
-- `make test` - Run tests
-- `make lint` - Run code linting
+- Email: `admin@example.com`
+- Password: `password123`
 
-### Manual Installation
+Both are overridable with `SEED_ADMIN_EMAIL` and `SEED_ADMIN_PASSWORD`, and the
+seeds only run in development and test.
 
-If you prefer not to use Make, follow these steps manually:
+## Google sign-in (optional)
 
-#### Setting up Ruby with rbenv
+The Google button only appears once credentials are configured.
 
-1. Install rbenv if you haven't already:
-```bash
-# On macOS with Homebrew
-brew install rbenv ruby-build
+1. Create a project at https://console.cloud.google.com/
+2. Create OAuth credentials of type "Web application"
+3. Add the authorised redirect URI `http://localhost:3000/users/auth/google_oauth2/callback`
+4. Copy `.env.example` to `.env` and fill in:
 
-# Add rbenv to bash
-echo 'eval "$(rbenv init -)"' >> ~/.bash_profile
-source ~/.bash_profile
+   ```
+   GOOGLE_CLIENT_ID=your_client_id
+   GOOGLE_CLIENT_SECRET=your_client_secret
+   ```
 
-# For zsh users
-echo 'eval "$(rbenv init -)"' >> ~/.zshrc
-source ~/.zshrc
-```
+## Make targets
 
-2. Install Ruby 3.4.2:
-```bash
-rbenv install 3.4.2
-```
+Run `make help` for the full list.
 
-3. Set Ruby 3.4.2 as the project's Ruby version:
-```bash
-rbenv local 3.4.2
-ruby -v  # Verify you're using 3.4.2
-```
-
-#### Setting up PostgreSQL
-
-1. Install PostgreSQL:
-```bash
-# On macOS with Homebrew
-brew install postgresql@15
-
-# Start PostgreSQL service
-brew services start postgresql@15
-```
-
-2. Make sure PostgreSQL command line tools are in your PATH:
-```bash
-# For Intel Macs:
-export PATH="/usr/local/opt/postgresql@15/bin:$PATH"
-
-# For Apple Silicon Macs:
-export PATH="/opt/homebrew/opt/postgresql@15/bin:$PATH"
-
-# Add to your ~/.zshrc or ~/.bash_profile to make it permanent
-```
-
-3. Create a PostgreSQL user:
-```bash
-# Create user with password (must provide a non-empty password when prompted)
-createuser -d -P shortstop
-
-# Or create user without password authentication (simpler for development)
-createuser -d shortstop
-```
-
-#### Setting up the Application
-
-1. Clone the repository:
-```bash
-git clone https://github.com/your-username/shortstop.git
-cd shortstop
-```
-
-2. Install dependencies:
-```bash
-gem install bundler  # Install bundler if you don't have it
-bundle install
-```
-
-3. Configure the database connection:
-   - Edit `config/database.yml` if needed to match your PostgreSQL setup
-   - If you created a custom user, update the username and password
-
-4. Configure Google OAuth (for social login):
-   - Create a project at https://console.developers.google.com/
-   - Enable the Google+ API
-   - Create OAuth credentials (Web application type)
-   - Add authorized redirect URIs:
-     - For development: `http://localhost:3000/users/auth/google_oauth2/callback`
-   - Create a `.env` file in the project root (copy from `.env.example`):
-     ```
-     GOOGLE_CLIENT_ID=your_client_id
-     GOOGLE_CLIENT_SECRET=your_client_secret
-     ```
-
-5. Set up the database:
-```bash
-bundle exec rails db:create db:migrate
-bundle exec rails db:seed
-```
-
-6. Start the Rails server:
-```bash
-bundle exec rails server
-```
-
-7. Visit http://localhost:3000 in your web browser
-
-   For local testing, a test user is already created with:
-   - Email: admin@example.com
-   - Password: password123
-
-### Troubleshooting
-
-#### Database Issues
-
-- If PostgreSQL connection fails, ensure the PostgreSQL service is running:
-```bash
-brew services start postgresql@15
-```
-
-- Make sure your PostgreSQL path is correctly set:
-```bash
-# Add to your shell profile if needed
-export PATH="/usr/local/opt/postgresql@15/bin:$PATH"
-```
-
-- For PostgreSQL authentication issues, check your `config/database.yml` configuration
-
-#### Rails Application Issues
-
-- If you encounter any issues with the URL shortening functionality, restart the Rails server after making changes:
-```bash
-# Stop the server with Ctrl+C, then restart
-bundle exec rails server
-```
-
-- If changes to files in the `lib` directory don't seem to take effect, you may need to restart the Rails server
-```bash
-# Stop the server with Ctrl+C, then restart
-bundle exec rails server
-```
-
-- For any other issues, check the Rails logs in `log/development.log`
+| Target | What it does |
+| --- | --- |
+| `make setup` | First-time local setup: Ruby, gems, database, seeds |
+| `make server` | Start the development server |
+| `make console` | Open a Rails console |
+| `make routes` | Show the routing table |
+| `make db-setup` / `db-reset` / `db-migrate` | Database tasks (setup and reset also seed) |
+| `make docker-up` / `docker-down` / `docker-logs` / `docker-shell` | Docker stack |
+| `make test` | Run the RSpec suite |
+| `make lint` | Run RuboCop |
+| `make security` | Run Brakeman |
+| `make audit` | Check dependencies for known CVEs |
 
 ## How It Works
 
-Shortstop uses Base62 encoding (0-9, a-z, A-Z) to create short, unique URL slugs. When a user submits a long URL:
+Shortstop generates a random 7-character Base62 slug (0-9, a-z, A-Z) for each
+new link, checked for uniqueness and against a list of reserved words that would
+otherwise shadow real routes. When someone visits a short link they are
+redirected to the original URL and the visit is recorded, which updates the
+link's counter cache and feeds the statistics page.
 
-1. The URL is validated and saved to the database
-2. The ID of the new record is encoded using Base62
-3. This encoded value becomes the shortened URL path
-4. When a user visits the shortened URL, they are redirected to the original URL
-5. Each visit increments a counter to track usage
+Slugs used to be the record's ID in Base62, which meant every link on the
+service could be found by counting upwards. Links created before that change
+keep working; new ones are random.
 
 ## Development
 
-With Make:
 ```bash
-# Run tests
-make test
-
-# Start the Rails console
-make console
-
-# Show all routes
-make routes
-
-# Run linting
-make lint
+bundle exec rspec        # tests
+bundle exec rubocop      # linting
+bundle exec brakeman     # static security analysis
+bundle exec bundler-audit check --update   # dependency CVEs
 ```
 
-Without Make:
-```bash
-# Run tests
-bundle exec rspec
+CI runs all four on every push and pull request. See `.github/workflows/ci.yml`.
 
-# Start the Rails console
-bundle exec rails console
+## Troubleshooting
 
-# Show all routes
-bundle exec rails routes
-```
+**`ExecJS::RuntimeUnavailable` on every page.** Install Node.js. See the local
+prerequisites above.
 
-## License
+**PostgreSQL connection failures.** Check the service is running and that the
+`POSTGRES_*` environment variables match your setup. With Docker this is handled
+for you.
 
-This project is open source and available under the [MIT License](LICENSE).
+**Changes to `lib/` not taking effect.** Restart the server; `lib` is eager
+loaded at boot.
+
+For anything else, check `log/development.log`.
+
+## Licence
+
+Released under the [MIT Licence](LICENSE).

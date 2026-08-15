@@ -94,7 +94,7 @@ RSpec.describe "Urls", type: :request do
 
       it "re-renders the form with 422 instead of raising" do
         post "/urls", params: invalid_params
-        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to have_http_status(:unprocessable_content)
       end
 
       it "shows the validation message" do

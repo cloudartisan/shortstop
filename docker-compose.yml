@@ -1,28 +1,44 @@
+# Development stack. `docker compose up` gives you a working app on :3000 with
+# your working tree live-mounted.
 services:
   db:
-    image: postgres:14
+    image: postgres:18-alpine
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      # Postgres 18 wants the whole directory mounted, not the data subdirectory,
+      # so that a future pg_upgrade --link does not cross a mount boundary.
+      - postgres_data:/var/lib/postgresql
     environment:
-      POSTGRES_PASSWORD: password
       POSTGRES_USER: postgres
-      POSTGRES_HOST_AUTH_METHOD: trust
-    ports:
-      - "5432:5432"
+      # Local-only credential. Postgres is not published to the host; the app
+      # reaches it over the compose network.
+      POSTGRES_PASSWORD: postgres
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
   web:
-    build: .
-    command: bash -c "rm -f tmp/pids/server.pid && bundle exec rails s -p 3000 -b '0.0.0.0'"
+    build:
+      context: .
+      target: development
+    command: ./bin/rails server -b 0.0.0.0 -p 3000
     volumes:
-      - .:/app
+      # Mounted at the image's WORKDIR so edits actually reach the running app.
+      - .:/rails
+      # Keep the container's gems out of the bind mount.
       - bundle_cache:/usr/local/bundle
     ports:
       - "3000:3000"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     environment:
-      DATABASE_URL: postgres://postgres:password@db:5432/shortstop_development
       RAILS_ENV: development
+      POSTGRES_HOST: db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: shortstop_development
 
 volumes:
   postgres_data:

@@ -1,10 +1,9 @@
 source "https://rubygems.org"
 
-ruby "3.4.2"
+ruby "3.4.10"
 
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
-gem "rails", "~> 7.2.3.2"
-gem "websocket-driver", "~> 0.8", ">= 0.8.2"
+gem "rails", "~> 8.1.3"
 
 # The original asset pipeline for Rails [https://github.com/rails/sprockets-rails]
 gem "sprockets-rails"
@@ -30,19 +29,8 @@ gem "jbuilder"
 # URL validation
 gem "validate_url"
 
-# Pagination
-gem "pagy"
-
-# Friendly IDs for SEO
-gem "friendly_id"
-
-# Bootstrap for styling
-gem "bootstrap", "~> 5.2"
-gem "sassc-rails"
-
 # Authentication
 gem "devise", "~> 5.0"
-gem "jwt", "~> 2.10", ">= 2.10.3"
 gem "omniauth-google-oauth2"
 gem "omniauth-rails_csrf_protection"
 gem "dotenv-rails", groups: [ :development, :test ]

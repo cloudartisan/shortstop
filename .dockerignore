@@ -2,13 +2,17 @@
 
 # Ignore git directory.
 /.git/
+/.gitignore
 
-# Ignore bundler config.
+# Ignore bundler config and any locally vendored gems. vendor/bundle held a
+# 200MB tree including an unrelated Ruby 2.6 gemset, all of it copied into the
+# image and scanned as if it were a dependency.
 /.bundle
+/vendor/bundle
 
-# Ignore all environment files (except templates).
+# Ignore all environment files.
 /.env*
-!/.env*.erb
+!/.env.example
 
 # Ignore all default key files.
 /config/master.key
@@ -22,12 +26,14 @@
 
 # Ignore pidfiles, but keep the directory.
 /tmp/pids/*
+!/tmp/pids/
 !/tmp/pids/.keep
 
 # Ignore storage (uploaded files in development and any SQLite databases).
 /storage/*
 !/storage/.keep
 /tmp/storage/*
+!/tmp/storage/
 !/tmp/storage/.keep
 
 # Ignore assets.
@@ -35,3 +41,8 @@
 /app/assets/builds/*
 !/app/assets/builds/.keep
 /public/assets
+
+# Ignore CI, editor and test artefacts.
+/.github/
+/spec/examples.txt
+/tags

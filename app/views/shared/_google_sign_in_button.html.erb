@@ -1,4 +1,6 @@
-<%# Rendered on the home page and the Devise shared links. %>
+<%# Rendered on the home page and the Devise shared links. Renders nothing
+    unless GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET are both set. %>
+<% if google_oauth_configured? %>
 <div class="mt-3">
   <p class="text-center mb-2">Or sign in with:</p>
   <%= button_to user_google_oauth2_omniauth_authorize_path, data: { turbo: false }, class: "btn btn-outline-danger w-100 d-flex align-items-center justify-content-center gap-2" do %>
@@ -8,3 +10,4 @@
     <span>Sign in with Google</span>
   <% end %>
 </div>
+<% end %>

@@ -61,6 +61,6 @@ jobs:
         with:
           bundler-cache: true
       - name: Brakeman
-        run: bundle exec brakeman --no-pager --quiet
+        run: bundle exec brakeman --no-pager --quiet --exit-on-warn
       - name: Known CVEs in dependencies
         run: bundle exec bundler-audit check --update

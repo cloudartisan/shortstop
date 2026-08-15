@@ -18,7 +18,7 @@ class UrlsController < ApplicationController
       redirect_to url_path(@url.shortened_path), notice: "URL was successfully shortened!"
     else
       @recent_urls = recent_urls
-      render :new, status: :unprocessable_entity
+      render :new, status: :unprocessable_content
     end
   end
 
