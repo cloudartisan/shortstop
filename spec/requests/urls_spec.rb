@@ -35,7 +35,7 @@ RSpec.describe "Urls", type: :request do
   describe "POST /urls" do
     let(:valid_params) { { url: { original_url: "https://example.com" } } }
 
-    context "as an anonymous visitor" do
+    context "when nobody is signed in" do
       it "creates a new URL" do
         expect { post "/urls", params: valid_params }.to change(Url, :count).by(1)
       end
@@ -57,7 +57,7 @@ RSpec.describe "Urls", type: :request do
       end
     end
 
-    context "as a signed-in user" do
+    context "when signed in" do
       let(:user) { create(:user) }
 
       before { sign_in user }

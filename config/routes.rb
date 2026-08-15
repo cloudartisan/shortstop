@@ -8,7 +8,7 @@ Rails.application.routes.draw do
   root "urls#new"
 
   # URL resources for create and show operations
-  resources :urls, only: [:new, :create, :show] do
+  resources :urls, only: [ :new, :create, :show ] do
     member do
       get "stats" # Adds /urls/:id/stats route
     end

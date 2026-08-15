@@ -20,7 +20,7 @@ RSpec.describe Url, type: :model do
     end
 
     it "rejects slugs that would shadow a real route" do
-      Url::RESERVED_SLUGS.each do |slug|
+      described_class::RESERVED_SLUGS.each do |slug|
         url = build(:url, shortened_path: slug)
         expect(url).not_to be_valid, "expected #{slug.inspect} to be rejected"
         expect(url.errors[:shortened_path]).to include("is reserved")
@@ -30,18 +30,18 @@ RSpec.describe Url, type: :model do
 
   describe "slug generation" do
     it "assigns a slug on create without the controller's help" do
-      url = Url.create!(original_url: "https://example.com")
+      url = described_class.create!(original_url: "https://example.com")
       expect(url.shortened_path).to be_present
-      expect(url.shortened_path.length).to eq(Url::SLUG_LENGTH)
+      expect(url.shortened_path.length).to eq(described_class::SLUG_LENGTH)
     end
 
     it "does not derive the slug from the id, so links cannot be enumerated" do
-      url = Url.create!(original_url: "https://example.com")
+      url = described_class.create!(original_url: "https://example.com")
       expect(url.shortened_path).not_to eq(url.id.to_base62)
     end
 
     it "generates distinct slugs" do
-      slugs = Array.new(25) { Url.create!(original_url: "https://example.com/#{_1}").shortened_path }
+      slugs = Array.new(25) { described_class.create!(original_url: "https://example.com/#{_1}").shortened_path }
       expect(slugs.uniq.length).to eq(25)
     end
 
@@ -51,7 +51,7 @@ RSpec.describe Url, type: :model do
     end
 
     it "never persists a row without a slug" do
-      expect(Url.create!(original_url: "https://example.com").shortened_path).not_to be_nil
+      expect(described_class.create!(original_url: "https://example.com").shortened_path).not_to be_nil
     end
   end
 
@@ -61,8 +61,8 @@ RSpec.describe Url, type: :model do
       orphan = create(:url)
       orphan.update_column(:shortened_path, nil)
 
-      expect(Url.resolvable).to include(good)
-      expect(Url.resolvable).not_to include(orphan)
+      expect(described_class.resolvable).to include(good)
+      expect(described_class.resolvable).not_to include(orphan)
     end
   end
 
@@ -84,11 +84,11 @@ RSpec.describe Url, type: :model do
   describe ".find_by_shortened_path" do
     it "finds a URL by its shortened path" do
       url = create(:url, shortened_path: "xyz789")
-      expect(Url.find_by_shortened_path("xyz789")).to eq(url)
+      expect(described_class.find_by_shortened_path("xyz789")).to eq(url)
     end
 
     it "returns nil for nonexistent paths" do
-      expect(Url.find_by_shortened_path("nonexistent")).to be_nil
+      expect(described_class.find_by_shortened_path("nonexistent")).to be_nil
     end
   end
 

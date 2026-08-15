@@ -45,7 +45,7 @@ RSpec.describe Base62 do
 
   describe "round-tripping" do
     it "returns the original number" do
-      [0, 1, 61, 62, 3523, 12_345, 999_999_999].each do |n|
+      [ 0, 1, 61, 62, 3523, 12_345, 999_999_999 ].each do |n|
         expect(described_class.decode(described_class.encode(n))).to eq(n)
       end
     end

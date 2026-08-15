@@ -1,6 +1,6 @@
 class UrlsController < ApplicationController
-  before_action :set_url, only: [:show, :stats]
-  before_action :authorize_stats!, only: [:stats]
+  before_action :set_url, only: [ :show, :stats ]
+  before_action :authorize_stats!, only: [ :stats ]
 
   # Display form for creating a new shortened URL
   def new
@@ -91,12 +91,7 @@ class UrlsController < ApplicationController
   # otherwise the ones created in this browser session. It used to show every
   # user's links to anonymous visitors.
   def recent_urls
-    scope = if user_signed_in?
-              current_user.urls
-            else
-              Url.where(id: session_url_ids, user_id: nil)
-            end
-
+    scope = user_signed_in? ? current_user.urls : Url.where(id: session_url_ids, user_id: nil)
     scope.resolvable.order(created_at: :desc).limit(5)
   end
 
@@ -107,7 +102,7 @@ class UrlsController < ApplicationController
   def remember_url(url)
     return if user_signed_in?
 
-    session[:url_ids] = (session_url_ids + [url.id]).last(50)
+    session[:url_ids] = (session_url_ids + [ url.id ]).last(50)
   end
 
   # Visits per day across the last 30 days, including days with no visits so
@@ -119,7 +114,7 @@ class UrlsController < ApplicationController
                    .count
                    .transform_keys { |key| key.to_date }
 
-    window.map { |date| [date, counts.fetch(date, 0)] }
+    window.map { |date| [ date, counts.fetch(date, 0) ] }
   end
 
   # Counts by category, ordered most frequent first. Every visit lands in

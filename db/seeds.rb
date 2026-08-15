@@ -42,7 +42,7 @@ if Rails.env.development? || Rails.env.test?
       rand(5..15).times do
         Visit.create!(
           url: url,
-          referer: ["https://www.google.com", "https://www.github.com", nil].sample,
+          referer: [ "https://www.google.com", "https://www.github.com", nil ].sample,
           user_agent: user_agents.sample,
           created_at: rand(1..30).days.ago
         )

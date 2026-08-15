@@ -55,8 +55,8 @@ RSpec.describe User, type: :model do
 
     it "returns the same user on subsequent sign-ins" do
       first = described_class.from_omniauth(auth)
-      expect { @second = described_class.from_omniauth(auth) }.not_to change(described_class, :count)
-      expect(@second).to eq(first)
+      expect { described_class.from_omniauth(auth) }.not_to change(described_class, :count)
+      expect(described_class.from_omniauth(auth)).to eq(first)
     end
   end
 end

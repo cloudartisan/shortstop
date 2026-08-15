@@ -45,7 +45,7 @@ gem "devise", "~> 5.0"
 gem "jwt", "~> 2.10", ">= 2.10.3"
 gem "omniauth-google-oauth2"
 gem "omniauth-rails_csrf_protection"
-gem "dotenv-rails", groups: [:development, :test]
+gem "dotenv-rails", groups: [ :development, :test ]
 
 # Use Redis adapter to run Action Cable in production
 # gem "redis", ">= 4.0.1"
@@ -70,6 +70,14 @@ group :development, :test do
   gem "debug", platforms: %i[ mri windows ]
   gem "rspec-rails"
   gem "factory_bot_rails"
+
+  # Linting and static analysis, run in CI
+  gem "rubocop-rails-omakase", require: false
+  gem "rubocop-rspec", require: false
+
+  # Static security analysis and known-CVE checking, run in CI
+  gem "brakeman", require: false
+  gem "bundler-audit", require: false
 end
 
 group :development do

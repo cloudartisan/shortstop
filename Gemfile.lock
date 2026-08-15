@@ -76,6 +76,7 @@ GEM
       tzinfo (~> 2.0, >= 2.0.5)
     addressable (2.9.0)
       public_suffix (>= 2.0.2, < 8.0)
+    ast (2.4.3)
     autoprefixer-rails (10.4.19.0)
       execjs (~> 2)
     base64 (0.3.0)
@@ -88,7 +89,12 @@ GEM
     bootstrap (5.3.3)
       autoprefixer-rails (>= 9.1.0)
       popper_js (>= 2.11.8, < 3)
+    brakeman (8.0.6)
+      racc
     builder (3.3.0)
+    bundler-audit (0.9.3)
+      bundler (>= 1.2.0)
+      thor (~> 1.0)
     capybara (3.40.0)
       addressable
       matrix
@@ -158,6 +164,8 @@ GEM
     json (2.19.9)
     jwt (2.10.3)
       base64
+    language_server-protocol (3.17.0.6)
+    lint_roller (1.1.0)
     logger (1.7.0)
     loofah (2.25.1)
       crass (~> 1.0.2)
@@ -217,6 +225,10 @@ GEM
       omniauth (~> 2.0)
     orm_adapter (0.5.0)
     pagy (9.3.3)
+    parallel (2.1.0)
+    parser (3.3.12.0)
+      ast (~> 2.4.1)
+      racc
     pg (1.5.9)
     popper_js (2.11.8)
     pp (0.6.4)
@@ -273,6 +285,7 @@ GEM
       thor (~> 1.0, >= 1.2.2)
       tsort (>= 0.2)
       zeitwerk (~> 2.6)
+    rainbow (3.1.1)
     rake (13.4.2)
     rdoc (7.2.0)
       erb
@@ -302,6 +315,39 @@ GEM
       rspec-mocks (~> 3.13)
       rspec-support (~> 3.13)
     rspec-support (3.13.2)
+    rubocop (1.89.0)
+      json (~> 2.3)
+      language_server-protocol (~> 3.17.0.2)
+      lint_roller (~> 1.1.0)
+      parallel (>= 1.10)
+      parser (>= 3.3.0.2)
+      rainbow (>= 2.2.2, < 4.0)
+      regexp_parser (>= 2.9.3, < 3.0)
+      rubocop-ast (>= 1.49.0, < 2.0)
+      ruby-progressbar (~> 1.7)
+      unicode-display_width (>= 2.4.0, < 4.0)
+    rubocop-ast (1.50.0)
+      parser (>= 3.3.7.2)
+      prism (~> 1.7)
+    rubocop-performance (1.26.1)
+      lint_roller (~> 1.1)
+      rubocop (>= 1.75.0, < 2.0)
+      rubocop-ast (>= 1.47.1, < 2.0)
+    rubocop-rails (2.36.0)
+      activesupport (>= 4.2.0)
+      lint_roller (~> 1.1)
+      rack (>= 1.1)
+      rubocop (>= 1.75.0, < 2.0)
+      rubocop-ast (>= 1.44.0, < 2.0)
+    rubocop-rails-omakase (1.1.0)
+      rubocop (>= 1.72)
+      rubocop-performance (>= 1.24)
+      rubocop-rails (>= 2.30)
+    rubocop-rspec (3.10.2)
+      lint_roller (~> 1.1)
+      regexp_parser (>= 2.0)
+      rubocop (~> 1.86, >= 1.86.2)
+    ruby-progressbar (1.13.0)
     rubyzip (2.4.1)
     sassc (2.4.0)
       ffi (~> 1.9)
@@ -340,6 +386,9 @@ GEM
       railties (>= 6.0.0)
     tzinfo (2.0.6)
       concurrent-ruby (~> 1.0)
+    unicode-display_width (3.2.0)
+      unicode-emoji (~> 4.1)
+    unicode-emoji (4.2.0)
     uri (1.1.1)
     useragent (0.16.11)
     validate_url (1.0.15)
@@ -370,6 +419,8 @@ PLATFORMS
 DEPENDENCIES
   bootsnap
   bootstrap (~> 5.2)
+  brakeman
+  bundler-audit
   capybara
   debug
   devise (~> 5.0)
@@ -386,6 +437,8 @@ DEPENDENCIES
   puma (~> 7.2, >= 7.2.1)
   rails (~> 7.2.3.2)
   rspec-rails
+  rubocop-rails-omakase
+  rubocop-rspec
   sassc-rails
   selenium-webdriver
   sprockets-rails
